@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 8K PRO: the launch screen shows the brand logo (res/drawable-nodpi/brand_splash.png)
+         for every icon colour. -->
+    <style name="Theme.OwnTVMobile.Starting.Petrol">
+        <item name="windowSplashScreenAnimatedIcon">@drawable/brand_splash</item>
+    </style>
+    <style name="Theme.OwnTVMobile.Starting.Sunflower">
+        <item name="windowSplashScreenAnimatedIcon">@drawable/brand_splash</item>
+    </style>
+    <style name="Theme.OwnTVMobile.Starting.Cobalt">
+        <item name="windowSplashScreenAnimatedIcon">@drawable/brand_splash</item>
+    </style>
+    <style name="Theme.OwnTVMobile.Starting.Tomato">
+        <item name="windowSplashScreenAnimatedIcon">@drawable/brand_splash</item>
+    </style>
+    <style name="Theme.OwnTVMobile.Starting.Board">
+        <item name="windowSplashScreenAnimatedIcon">@drawable/brand_splash</item>
+    </style>
+    <style name="Theme.OwnTVMobile.Starting.Eggshell">
+        <item name="windowSplashScreenAnimatedIcon">@drawable/brand_splash</item>
+    </style>
+    <style name="Theme.OwnTVMobile.Starting.Olive">
+        <item name="windowSplashScreenAnimatedIcon">@drawable/brand_splash</item>
+    </style>
+    <style name="Theme.OwnTVMobile.Starting.OliveCream">
+        <item name="windowSplashScreenAnimatedIcon">@drawable/brand_splash</item>
+    </style>
+    <style name="Theme.OwnTVMobile.Starting.Pixel">
+        <item name="windowSplashScreenAnimatedIcon">@drawable/brand_splash</item>
+    </style>
+</resources>
