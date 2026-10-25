@@ -1,5 +1,6 @@
 package tv.own.owntv.mobile.ui.screens.live
 
+import tv.own.owntv.mobile.login.attachWithStats
 import android.content.Context
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -319,7 +320,7 @@ class LiveTuner(
     private fun publishToSystem() {
         // Whichever engine actually holds the stream: a session published for the idle one would
         // answer the lockscreen and the headphone button for something that is not playing.
-        session.attach(if (liveOnExo.value) exo else engine)
+        session.attachWithStats(if (liveOnExo.value) exo else engine)
         PlaybackService.start(context)
     }
 
@@ -1139,7 +1140,7 @@ class LiveTuner(
         // Withdraw first: a session left published after the sound stops keeps answering the
         // lockscreen and the headphone button for a stream that no longer exists.
         cast.release(this)
-        session.attach(null)
+        session.attachWithStats(null)
         PlaybackService.stop(context)
         // Both engines and every watcher the ladder owns, or one of them fires on a channel nobody is
         // watching and stops the shared player — which by then may be showing a film.
@@ -1153,7 +1154,7 @@ class LiveTuner(
     override fun releaseToCast(): Long {
         timeshift.clear()
         val position = currentEngine.position.value
-        session.attach(null)
+        session.attachWithStats(null)
         // BOTH engines. Tapping Cast while a live channel played stopped mpv only, so ExoPlayer went
         // on playing the same channel on the handset beside the television — two pictures, two
         // sounds, and two of the playlist's connections for one thing being watched.

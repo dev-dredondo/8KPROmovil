@@ -1,5 +1,6 @@
 package tv.own.owntv.mobile.cast
 
+import tv.own.owntv.mobile.login.attachWithStats
 import android.content.Context
 import com.google.android.gms.cast.framework.CastContext
 import com.google.android.gms.cast.framework.CastSession
@@ -131,7 +132,7 @@ class CastController(
         _engine.value = remote
         // The lock screen, the media buttons and the notification follow the engine, so they follow
         // the television without a second implementation of any of the three.
-        session.attach(remote)
+        session.attachWithStats(remote)
         PlaybackService.start(context)
         remote.load(request)
     }
@@ -145,7 +146,7 @@ class CastController(
         _engine.value = null
         // Withdrawn before the local engine starts: the tuner attaches its own on the way back in,
         // and two attaches racing would leave the session pointing at a stopped engine.
-        session.attach(null)
+        session.attachWithStats(null)
         owner?.resumeFromCast(position)
     }
 }

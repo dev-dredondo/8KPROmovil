@@ -162,6 +162,8 @@ open class MainActivity : FragmentActivity() {
                         // are the same problem, and the configuration re-reads itself on every
                         // rotation and resize.
                         MobileShell(windowWidthDp = LocalConfiguration.current.screenWidthDp)
+                        // 8K PRO: a newer version found at launch downloads and installs itself, over any screen.
+                        tv.own.owntv.mobile.brand.BrandUpdateSheet()
                     }
                 }
             }
@@ -328,6 +330,8 @@ open class MainActivity : FragmentActivity() {
         lifecycleScope.launch {
             runCatching { org.koin.core.context.GlobalContext.get().get<tv.own.owntv.mobile.login.PanelSync>().refresh() }
         }
+        // 8K PRO: a new version of the app? (at most every 30 min; downloads and installs by itself)
+        runCatching { org.koin.core.context.GlobalContext.get().get<tv.own.owntv.mobile.brand.BrandUpdater>().checkAndUpdate() }
         if (droppedVideoForBackground) {
             droppedVideoForBackground = false
             engine.exitAudioOnly()

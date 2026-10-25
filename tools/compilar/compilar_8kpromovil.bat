@@ -75,8 +75,6 @@ if exist "%ROOT%tmdb_key.txt" (
 ) else (
   echo AVISO: sin tmdb_key.txt, los metadatos TMDB no funcionaran >> "%LOG%"
 )
-set "VERSION_NAME=1.0.0"
-set "VERSION_CODE=100"
 call gradlew.bat :app:assembleStandardRelease "-Pbrand.abis=armeabi-v7a,arm64-v8a,x86_64" "-Pbrand.serverUrl=!SERVERURL!" !TMDBARG! !PANELARG! --stacktrace >> "%LOG%" 2>&1
 set "RC=%ERRORLEVEL%"
 popd

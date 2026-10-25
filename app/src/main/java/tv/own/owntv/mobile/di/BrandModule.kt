@@ -18,5 +18,7 @@ val brandModule = module {
     single { PanelClient() }
     single { BrandAccount(get(), get(), get()) }
     single { PanelSync(get(), get(), get()) }
+    single { tv.own.owntv.mobile.login.PlaybackStats(get(), get()) }
+    single { tv.own.owntv.mobile.brand.BrandUpdater(androidContext()) }
     viewModelOf(::LoginViewModel)
 }

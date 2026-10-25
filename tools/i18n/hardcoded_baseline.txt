@@ -32,9 +32,6 @@
 1	app/src/main/java/tv/own/owntv/mobile/login/PanelClient.kt	PanelClient
 1	app/src/main/java/tv/own/owntv/mobile/login/PanelClient.kt	SHA-256
 1	app/src/main/java/tv/own/owntv/mobile/login/PanelClient.kt	TLS
-1	app/src/main/java/tv/own/owntv/mobile/login/PanelClient.kt	X-App-Version
-1	app/src/main/java/tv/own/owntv/mobile/login/PanelClient.kt	X-Device-Id
-1	app/src/main/java/tv/own/owntv/mobile/login/PanelClient.kt	X-Device-Token
 1	app/src/main/java/tv/own/owntv/mobile/login/PanelClient.kt	active
 1	app/src/main/java/tv/own/owntv/mobile/login/PanelClient.kt	android
 1	app/src/main/java/tv/own/owntv/mobile/login/PanelClient.kt	app_version

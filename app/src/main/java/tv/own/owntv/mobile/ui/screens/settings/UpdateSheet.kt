@@ -191,7 +191,7 @@ fun UpdateSheet(onDismiss: () -> Unit, checkOnOpen: Boolean = false) {
 
 /** Each failure in the words core already has for it, so the phone and the television read alike. */
 @Composable
-private fun updateFailureText(failure: UpdateManager.Failure): String = when (failure) {
+internal fun updateFailureText(failure: UpdateManager.Failure): String = when (failure) {
     is UpdateManager.Failure.CheckHttp ->
         stringResource(R.string.update_failed_check_http, failure.code.toString())
     UpdateManager.Failure.CheckNetwork -> stringResource(R.string.update_failed_check)

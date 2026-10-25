@@ -29,6 +29,18 @@ plugins {
     alias(libs.plugins.baselineprofile)
 }
 
+
+// 8K PRO: la versión sale de version.txt (p. ej. 1.0.1). versionCode = 1000000 + mayor*10000 + menor*100 + parche,
+// siempre por encima del 99999 de las primeras compilaciones, para que la actualización se instale encima.
+val brandVersionName: String = (System.getenv("VERSION_NAME")
+    ?: providers.fileContents(rootProject.layout.projectDirectory.file("version.txt")).asText.orNull?.trim()
+    ?: "1.0.0")
+val brandVersionCode: Int = System.getenv("VERSION_CODE")?.toInt() ?: run {
+    val p = brandVersionName.split('.').map { it.takeWhile(Char::isDigit).toIntOrNull() ?: 0 } + listOf(0, 0, 0)
+    require(p[1] < 100 && p[2] < 100) { "version.txt: menor y parche deben ser < 100 ($brandVersionName)" }
+    1_000_000 + p[0] * 10_000 + p[1] * 100 + p[2]
+}
+
 android {
     // Distinct from the TV app's tv.own.owntv, so both install side by side on one device and each
     // keeps its own data. This value can never change after the first release — the launcher label
@@ -55,8 +67,8 @@ android {
         // CI injects these from the git tag, exactly as in the TV app. The fallbacks are only used
         // by local/debug builds and are pinned HIGH so a dev APK is always "newer" than a published
         // release and installs straight over it.
-        versionCode = (System.getenv("VERSION_CODE") ?: "99999").toInt()
-        versionName = System.getenv("VERSION_NAME") ?: "99.99.99"
+        versionCode = brandVersionCode
+        versionName = brandVersionName
 
         // The three switches core reads through CoreBuildInfo. Same resolution order as the TV app:
         // env var (CI) > Gradle property > the out-of-repo properties file.
@@ -95,6 +107,11 @@ android {
         buildConfigField("String", "BRAND_TMDB_API_KEY", "\"${brandProp("brand.tmdbApiKey")}\"")
         buildConfigField("String", "BRAND_PANEL_URL", "\"${brandProp("brand.panelUrl").trimEnd('/')}\"")
         buildConfigField("String", "BRAND_PANEL_PIN", "\"${brandProp("brand.panelPin")}\"")
+        // Actualización automática: version.json publicado junto al APK en la rama "apk" de este repositorio.
+        // -Pbrand.updateUrl= (vacío) la desactiva.
+        val brandUpdateUrl = (providers.gradleProperty("brand.updateUrl").orNull
+            ?: "https://raw.githubusercontent.com/dev-dredondo/8KPROmovil/apk/version.json").trim()
+        buildConfigField("String", "BRAND_UPDATE_URL", "\"$brandUpdateUrl\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

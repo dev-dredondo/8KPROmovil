@@ -1,5 +1,6 @@
 package tv.own.owntv.mobile.ui.screens.library
 
+import tv.own.owntv.mobile.login.attachWithStats
 import android.content.Context
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -406,7 +407,7 @@ class VodTuner(
         cast.release(this)
         player.play(url = filePath, title = title, isLive = false)
         player.exitAudioOnly()
-        session.attach(engine)
+        session.attachWithStats(engine)
         PlaybackService.start(context)
         playingProfileId = pid
         _playing.value = VodPlayback(MediaType.LIVE, RECORDING_ITEM_ID, title, posterUrl = posterUrl)
@@ -476,7 +477,7 @@ class VodTuner(
             saveProgress()
             clearPlaying()
             cast.release(this@VodTuner)
-            session.attach(null)
+            session.attachWithStats(null)
             PlaybackService.stop(context)
             player.stop()
         }
@@ -485,7 +486,7 @@ class VodTuner(
     /** The television is taking the film; the phone keeps only where it had got to. */
     override fun releaseToCast(): Long {
         val position = player.position.value
-        session.attach(null)
+        session.attachWithStats(null)
         player.stop()
         return position
     }
@@ -537,7 +538,7 @@ class VodTuner(
             // engine holds the sound-only flag across a change of stream, so without this a channel
             // watched without a picture handed the next film the same fate.
             player.exitAudioOnly()
-            session.attach(engine)
+            session.attachWithStats(engine)
         }
         PlaybackService.start(context)
         playingProfileId = profileId
