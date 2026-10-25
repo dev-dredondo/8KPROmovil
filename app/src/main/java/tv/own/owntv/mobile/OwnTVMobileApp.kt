@@ -173,6 +173,7 @@ class OwnTVMobileApp : Application(), androidx.work.Configuration.Provider {
             scope = appScope,
             settings = GlobalContext.get().get(),
             metadata = GlobalContext.get().get(),
+            sourceDao = GlobalContext.get().get(),
         )
         // 8K PRO: pick up a DNS/credentials change, or a deactivation, made on the activation panel.
         appScope.launch {
