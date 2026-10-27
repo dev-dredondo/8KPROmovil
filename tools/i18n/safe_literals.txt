@@ -68,6 +68,13 @@
 1	technical	app/src/main/java/tv/own/owntv/mobile/brand/BackupCatalog.kt	espana
 1	technical	app/src/main/java/tv/own/owntv/mobile/brand/BackupCatalog.kt	fhd
 1	technical	app/src/main/java/tv/own/owntv/mobile/brand/BackupCatalog.kt	fps
+2	empty	app/src/main/java/tv/own/owntv/mobile/brand/BrandDns.kt	\0
+1	technical	app/src/main/java/tv/own/owntv/mobile/brand/BrandDns.kt	51.170.52.10
+1	technical	app/src/main/java/tv/own/owntv/mobile/brand/BrandDns.kt	85.208.114.51
+1	log	app/src/main/java/tv/own/owntv/mobile/brand/BrandDns.kt	BrandDns
+1	log	app/src/main/java/tv/own/owntv/mobile/brand/BrandDns.kt	DNS check failed: ${it.javaClass.simpleName}
+1	log	app/src/main/java/tv/own/owntv/mobile/brand/BrandDns.kt	DNS server not answering, switching to the other brand server
+1	technical	app/src/main/java/tv/own/owntv/mobile/brand/BrandDns.kt	google.com
 1	empty	app/src/main/java/tv/own/owntv/mobile/brand/BrandUpdater.kt	\0
 1	technical	app/src/main/java/tv/own/owntv/mobile/brand/BrandUpdater.kt	%02x
 1	file-path	app/src/main/java/tv/own/owntv/mobile/brand/BrandUpdater.kt	8kpro-update.apk
