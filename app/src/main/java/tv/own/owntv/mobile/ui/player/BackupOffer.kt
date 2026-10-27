@@ -77,6 +77,14 @@ fun BackupOffer(tuner: LiveTuner, engine: PlaybackEngine, channel: ChannelEntity
     val result by produceState<Offer?>(initialValue = null, channel.id) {
         value = catalog.alternatives(channel.name)?.let { Offer.Found(it) } ?: Offer.Unavailable
     }
+    // The user's own search, for when the names are too different to be matched.
+    var query by remember(channel.id) { mutableStateOf("") }
+    val searched by produceState<List<BackupCatalog.Alternative>?>(initialValue = null, query) {
+        value = if (query.isBlank()) null else {
+            delay(250)
+            catalog.search(query) ?: emptyList()
+        }
+    }
     PlayerToast(modifier.widthIn(max = 440.dp).padding(16.dp)) {
         Text(
             stringResource(R.string.backup_offer_title),
@@ -91,11 +99,24 @@ fun BackupOffer(tuner: LiveTuner, engine: PlaybackEngine, channel: ChannelEntity
         }
         Text(sub, style = stageText(13f, 500), color = Color(0xFFCDD5D2), textAlign = TextAlign.Center, modifier = Modifier.padding(top = 4.dp))
         Spacer(Modifier.height(10.dp))
+        if (result is Offer.Found) {
+            tv.own.owntv.mobile.ui.stage.StageField(
+                value = query,
+                onValueChange = { query = it },
+                label = stringResource(R.string.backup_offer_search),
+                placeholder = channel.name,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            Spacer(Modifier.height(6.dp))
+        }
+        val shown = if (query.isNotBlank()) searched.orEmpty() else found.orEmpty()
         if (result == null) {
             CircularProgressIndicator(color = Color.White, modifier = Modifier.size(28.dp))
-        } else if (!found.isNullOrEmpty()) {
-            Column(Modifier.heightIn(max = 230.dp).verticalScroll(rememberScrollState())) {
-                found.forEach { alt ->
+        } else if (query.isNotBlank() && searched != null && shown.isEmpty()) {
+            Text(stringResource(R.string.backup_offer_none), style = stageText(13f, 500), color = Color(0xFFCDD5D2))
+        } else if (shown.isNotEmpty()) {
+            Column(Modifier.heightIn(max = 260.dp).verticalScroll(rememberScrollState())) {
+                shown.forEach { alt ->
                     StageButton(
                         onClick = { tuner.playBackup("${alt.name} · $suffix", alt.url, alt.logoUrl) },
                         text = alt.name,

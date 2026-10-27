@@ -26,7 +26,10 @@ class BackupCatalog(private val store: BackupStore) {
     /** One backup channel offered in place of a dead one. [url] is never shown. */
     data class Alternative(val name: String, val url: String, val logoUrl: String?, val score: Double)
 
-    private class Entry(val name: String, val streamId: Long, val logo: String?, val tokens: Set<String>, val key: String, val flat: String)
+    private class Entry(val name: String, val streamId: Long, val logo: String?, val tokens: Set<String>, val key: String, val flat: String) {
+        /** The name in lower case without accents, for the user's search. */
+        val plain: String = Normalizer.normalize(name.lowercase(), Normalizer.Form.NFD).replace(Regex("\\p{Mn}+"), "")
+    }
 
     private val client by lazy {
         OkHttpClient.Builder()
@@ -47,7 +50,7 @@ class BackupCatalog(private val store: BackupStore) {
      * Backup channels whose name looks like [channelName], best first. Null when there is no backup
      * provider or it could not be reached; empty when nothing looks alike.
      */
-    suspend fun alternatives(channelName: String, limit: Int = 6): List<Alternative>? = withContext(Dispatchers.IO) {
+    suspend fun alternatives(channelName: String, limit: Int = 8): List<Alternative>? = withContext(Dispatchers.IO) {
         val account = store.current() ?: return@withContext null
         val list = load(account) ?: return@withContext null
         val wanted = normalize(channelName)
@@ -59,6 +62,24 @@ class BackupCatalog(private val store: BackupStore) {
             .distinctBy { it.first.key }
             .take(limit)
             .map { (e, sc) -> Alternative(e.name, streamUrl(account, e.streamId), e.logo, sc) }
+            .toList()
+    }
+
+    /**
+     * The user's own search in the backup's channels: every word typed must appear in the name (in any
+     * order, accents and case ignored). Null when there is no backup or it could not be reached.
+     */
+    suspend fun search(text: String, limit: Int = 40): List<Alternative>? = withContext(Dispatchers.IO) {
+        val account = store.current() ?: return@withContext null
+        val list = load(account) ?: return@withContext null
+        val words = Normalizer.normalize(text.lowercase(), Normalizer.Form.NFD).replace(Regex("\\p{Mn}+"), "")
+            .split(Regex("[^a-z0-9+]+")).filter { it.isNotEmpty() }
+        if (words.isEmpty()) return@withContext emptyList()
+        list.asSequence()
+            .filter { e -> words.all { w -> e.plain.contains(w) } }
+            .sortedBy { it.name.length }
+            .take(limit)
+            .map { e -> Alternative(e.name, streamUrl(account, e.streamId), e.logo, 0.0) }
             .toList()
     }
 
@@ -121,21 +142,61 @@ class BackupCatalog(private val store: BackupStore) {
         return Normalized(tokens, numbers, tokens.sorted().joinToString(" "), words.joinToString(""))
     }
 
-    /** Overlap of the two names' words (Dice), with the numbers required to agree: "La 1" is never "La 2". */
+    /**
+     * How alike two names are, 0..1. Words count when they are equal or one is the start of the other
+     * ("liga" / "laliga"); the names run together also count when one contains the other
+     * ("DAZN LaLiga" / "DAZN LaLiga TV"). Different numbers rule a channel out ("La 1" is never "La 2");
+     * a number on one side only lowers the score, so "DAZN LaLiga 2" still shows up, below "DAZN LaLiga".
+     */
     private fun score(a: Normalized, e: Entry): Double {
-        val bNumbers = e.tokens.filter { t -> t.all(Char::isDigit) }.toSet()
-        if (a.numbers != bNumbers && a.flat != e.flat) return 0.0
         if (a.key == e.key) return 1.0
         if (a.flat.isNotEmpty() && a.flat == e.flat) return 0.95
-        val common = a.tokens.count { it in e.tokens }
-        if (common == 0) return 0.0
-        return 2.0 * common / (a.tokens.size + e.tokens.size)
+        val bNumbers = e.tokens.filter { t -> t.all(Char::isDigit) }.toSet()
+        if (a.numbers.isNotEmpty() && bNumbers.isNotEmpty() && a.numbers.intersect(bNumbers).isEmpty()) return 0.0
+        val numberFactor = if (a.numbers == bNumbers) 1.0 else 0.75
+        val aWords = a.tokens.filter { t -> !t.all(Char::isDigit) }
+        val bWords = e.tokens.filter { t -> !t.all(Char::isDigit) }
+        if (aWords.isEmpty() || bWords.isEmpty()) return 0.0
+        val matchedA = aWords.sumOf { w -> bWords.maxOf { o -> wordMatch(w, o) } }
+        val matchedB = bWords.sumOf { w -> aWords.maxOf { o -> wordMatch(w, o) } }
+        val dice = (matchedA + matchedB) / (aWords.size + bWords.size)
+        val shorter = minOf(a.flat.length, e.flat.length)
+        val contained = if (shorter >= 4 && (e.flat.contains(a.flat) || a.flat.contains(e.flat))) {
+            0.55 + 0.4 * shorter / maxOf(a.flat.length, e.flat.length)
+        } else 0.0
+        return maxOf(dice, contained) * numberFactor
+    }
+
+    /** 1 for the same word, 0.8 when one starts the other or contains it ("liga" in "laliga"), 0.7 for one typo. */
+    private fun wordMatch(x: String, y: String): Double = when {
+        x == y -> 1.0
+        minOf(x.length, y.length) >= 3 && (x.startsWith(y) || y.startsWith(x)) -> 0.8
+        minOf(x.length, y.length) >= 4 && (x.contains(y) || y.contains(x)) -> 0.8
+        minOf(x.length, y.length) >= 5 && oneEditApart(x, y) -> 0.7
+        else -> 0.0
+    }
+
+    private fun oneEditApart(x: String, y: String): Boolean {
+        if (kotlin.math.abs(x.length - y.length) > 1) return false
+        var i = 0
+        var j = 0
+        var edits = 0
+        while (i < x.length && j < y.length) {
+            if (x[i] == y[j]) { i++; j++; continue }
+            if (++edits > 1) return false
+            when {
+                x.length > y.length -> i++
+                x.length < y.length -> j++
+                else -> { i++; j++ }
+            }
+        }
+        return edits + (x.length - i) + (y.length - j) <= 1
     }
 
     private companion object {
         const val TAG = "BackupCatalog"
         const val CACHE_MS = 6 * 60 * 60 * 1000L
-        const val MIN_SCORE = 0.6
+        const val MIN_SCORE = 0.45
         /** Words that say how a channel is delivered, not which channel it is. */
         val NOISE = setOf(
             "hd", "fhd", "uhd", "sd", "hq", "lq", "4k", "8k", "2k", "1080", "1080p", "1080i", "720", "720p", "576p", "480p",

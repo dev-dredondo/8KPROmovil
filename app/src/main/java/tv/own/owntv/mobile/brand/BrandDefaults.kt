@@ -22,7 +22,7 @@ object BrandDefaults {
     private const val TAG = "BrandDefaults"
     private const val PREFS = "brand_defaults"
     private const val KEY_VERSION = "applied_version"
-    private const val VERSION = 3
+    private const val VERSION = 4
 
     const val ACCENT_HEX = "#FFB95C"
     /** TMDB language code as offered in Settings › Metadata (plain "es" = Spanish, Spain). */
@@ -58,6 +58,12 @@ object BrandDefaults {
                     sourceDao.getAllOnce()
                         .filter { it.type == tv.own.owntv.core.model.SourceType.XTREAM && BrandConfig.isOnBrandServer(it.url) }
                         .forEach { settings.setPlaylistAutoRefresh(it.id, PLAYLIST_REFRESH) }
+                }
+                if (applied < 4) {
+                    // Phone (1.0.3): tunneled playback off, and give up on a dead channel after 15 s so the
+                    // backup offer comes quickly. Applied once; the user's later changes stay.
+                    settings.setTunneledPlayback(false)
+                    settings.setLiveTuneTimeoutSecs(15)
                 }
                 if (applied < VERSION) prefs.edit().putInt(KEY_VERSION, VERSION).apply()
 

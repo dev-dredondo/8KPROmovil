@@ -35,4 +35,5 @@
     <string name="backup_offer_unreachable">The backup server can\'t be reached right now.</string>
     <string name="backup_offer_wait">Keep waiting</string>
     <string name="backup_suffix">backup</string>
+    <string name="backup_offer_search">Search the backup server</string>
 </resources>

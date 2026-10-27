@@ -33,4 +33,5 @@
     <string name="backup_offer_unreachable">Ahora mismo no se puede contactar con el servidor de reserva.</string>
     <string name="backup_offer_wait">Seguir esperando</string>
     <string name="backup_suffix">reserva</string>
+    <string name="backup_offer_search">Buscar en el servidor de reserva</string>
 </resources>
