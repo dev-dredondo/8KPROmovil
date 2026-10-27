@@ -37,4 +37,5 @@
     <string name="backup_suffix">backup</string>
     <string name="backup_offer_search">Search the backup server</string>
     <string name="backup_offer_auto">%1$s will play in %2$d s</string>
+    <string name="backup_offer_title_stutter">This channel keeps cutting out</string>
 </resources>

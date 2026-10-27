@@ -26,6 +26,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import tv.own.owntv.core.database.entity.ChannelEntity
 import tv.own.owntv.mobile.R
@@ -41,6 +42,9 @@ import tv.own.owntv.player.PlaybackEngine
 private const val STALL_AFTER_MS = 20_000L
 /** An engine that has given up and says so: offer sooner. */
 private const val ERROR_AFTER_MS = 5_000L
+/** A channel that cut out this many times within [STUTTER_WINDOW_MS] is offered the backup too. */
+private const val STUTTER_CUTS = 4
+private const val STUTTER_WINDOW_MS = 120_000L
 /** Seconds before the best backup match plays by itself when the user has not picked one. */
 private const val AUTO_PLAY_SECS = 10
 
@@ -58,9 +62,24 @@ fun BackupOffer(tuner: LiveTuner, engine: PlaybackEngine, channel: ChannelEntity
     var offerFor by remember { mutableStateOf<Long?>(null) }
     // Backup streams that failed while this player was open: tried last the next time round the cycle.
     var failedUrls by remember { mutableStateOf(emptySet<String>()) }
+    // True when the offer is up because the channel keeps cutting out, not because it stopped.
+    var stutter by remember { mutableStateOf(false) }
     val onBackup = tuner.playingBackup
     LaunchedEffect(channel.id, engine) {
         offerFor = null
+        stutter = false
+        // When each cut (buffering after the picture had started) began, for spotting a channel that keeps
+        // cutting out without ever stopping. Collected, not polled: most cuts are shorter than a second.
+        val cuts = ArrayDeque<Long>()
+        launch {
+            var played = false
+            var wasBuffering = false
+            kotlinx.coroutines.flow.combine(engine.isPlaying, engine.buffering) { p, b -> p to b }.collect { (playing, buffering) ->
+                if (playing && !buffering) played = true
+                if (buffering && !wasBuffering && played) cuts.addLast(SystemClock.elapsedRealtime())
+                wasBuffering = buffering
+            }
+        }
         var troubleSince: Long? = null
         while (true) {
             delay(1_000)
@@ -70,6 +89,8 @@ fun BackupOffer(tuner: LiveTuner, engine: PlaybackEngine, channel: ChannelEntity
             troubleSince = if (trouble) troubleSince ?: now else null
             val since = troubleSince
             val tooLong = since != null && now - since >= (if (failed) ERROR_AFTER_MS else STALL_AFTER_MS)
+            while (cuts.isNotEmpty() && now - cuts.first() > STUTTER_WINDOW_MS) cuts.removeFirst()
+            val stuttering = cuts.size >= STUTTER_CUTS
             when {
                 // The backup channel failed too: back to the real one. If that fails again, the offer (and
                 // its countdown) starts over — the cycle the user asked for, until one of them plays.
@@ -79,8 +100,9 @@ fun BackupOffer(tuner: LiveTuner, engine: PlaybackEngine, channel: ChannelEntity
                     return@LaunchedEffect
                 }
                 onBackup -> Unit
-                tooLong && dismissedFor != channel.id -> offerFor = channel.id
-                since == null -> offerFor = null // the channel came back by itself
+                tooLong && dismissedFor != channel.id -> { offerFor = channel.id; stutter = false }
+                stuttering && dismissedFor != channel.id && offerFor != channel.id -> { offerFor = channel.id; stutter = true }
+                since == null && !stutter -> offerFor = null // the channel came back by itself
             }
         }
     }
@@ -97,7 +119,9 @@ fun BackupOffer(tuner: LiveTuner, engine: PlaybackEngine, channel: ChannelEntity
     val ranked = (result as? Offer.Found)?.alternatives.orEmpty().sortedBy { it.url in failedUrls }
     val autoPick = ranked.firstOrNull()
     var remaining by remember(channel.id) { mutableStateOf(AUTO_PLAY_SECS) }
-    LaunchedEffect(channel.id, autoPick?.url) {
+    LaunchedEffect(channel.id, autoPick?.url, stutter) {
+        // A channel that still plays, only badly, is the user's call: no countdown for it.
+        if (stutter) return@LaunchedEffect
         val pick = autoPick ?: return@LaunchedEffect
         remaining = AUTO_PLAY_SECS
         while (remaining > 0) {
@@ -114,7 +138,7 @@ fun BackupOffer(tuner: LiveTuner, engine: PlaybackEngine, channel: ChannelEntity
     }
     PlayerToast(modifier.widthIn(max = 440.dp).padding(16.dp)) {
         Text(
-            stringResource(R.string.backup_offer_title),
+            stringResource(if (stutter) R.string.backup_offer_title_stutter else R.string.backup_offer_title),
             style = stageText(17f, 800), color = Color.White, textAlign = TextAlign.Center,
         )
         val found = ranked.takeIf { result is Offer.Found }
@@ -125,7 +149,7 @@ fun BackupOffer(tuner: LiveTuner, engine: PlaybackEngine, channel: ChannelEntity
             else -> stringResource(R.string.backup_offer_text)
         }
         Text(sub, style = stageText(13f, 500), color = Color(0xFFCDD5D2), textAlign = TextAlign.Center, modifier = Modifier.padding(top = 4.dp))
-        if (autoPick != null && query.isBlank()) {
+        if (autoPick != null && query.isBlank() && !stutter) {
             Text(
                 stringResource(R.string.backup_offer_auto, autoPick.name, remaining),
                 style = stageText(13f, 700), color = stageAccent.accent, textAlign = TextAlign.Center,

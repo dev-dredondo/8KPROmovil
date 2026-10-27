@@ -35,4 +35,5 @@
     <string name="backup_suffix">reserva</string>
     <string name="backup_offer_search">Buscar en el servidor de reserva</string>
     <string name="backup_offer_auto">Se reproducirá %1$s en %2$d s</string>
+    <string name="backup_offer_title_stutter">Este canal se está cortando mucho</string>
 </resources>
