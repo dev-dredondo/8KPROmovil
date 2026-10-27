@@ -1,8 +1,8 @@
 {
-  "versionCode": 1010003,
-  "versionName": "1.0.3",
-  "apk": "https://raw.githubusercontent.com/dev-dredondo/8KPROmovil/apk/8KPROmovil-1.0.3.apk",
-  "sha256": "a6d2379c011d3c7079065d2bfff409d03ee361bfae15cce5040aa7618d21803a",
+  "versionCode": 1010004,
+  "versionName": "1.0.4",
+  "apk": "https://raw.githubusercontent.com/dev-dredondo/8KPROmovil/apk/8KPROmovil-1.0.4.apk",
+  "sha256": "4e556621ebf1ebd6610fb6b03ef706998559b3a101c810fac75c158255583d7e",
   "size": 86906455,
-  "notes": "- Canales de reserva: si un canal se cae (o se corta mucho), la app ofrece el mismo canal en el servidor de reserva y puede cambiar sola\n- Reproductor MPV y DNS propias activadas por defecto\n- Al reinstalar la app se conserva el mismo código de dispositivo"
+  "notes": "- TV en directo vuelve a ExoPlayer: los canales abren más rápido, sin tirones y con el audio sincronizado\n- MPV sigue como reproductor de películas y series"
 }
