@@ -644,6 +644,24 @@ class LiveTuner(
     /** The real channel a backup channel stands in for, so Channel +/− continues from its place in the list. */
     private var backupOf: Long? = null
 
+    /**
+     * 8K PRO: open the playing channel again from the start of the ladder (ExoPlayer first), after the
+     * engines gave up on it. No history entry: the same channel, tried once more.
+     */
+    fun retryLive() {
+        val channel = _channel.value ?: return
+        if (channel.id <= BACKUP_ID_BASE || _replaying.value) return
+        live.launch {
+            val source = withContext(Dispatchers.IO) { sourceDao.getById(channel.sourceId) }
+            val url = if (streamUrlResolver.needsResolve(source)) {
+                runCatching { streamUrlResolver.resolve(source!!, channel.streamUrl) }.getOrNull() ?: return@launch
+            } else {
+                channel.streamUrl
+            }
+            live.start(channel, source, resolved = url)
+        }
+    }
+
     /** Back from a backup channel to the real one it stood in for (the backup failed too). */
     fun returnFromBackup() {
         val id = backupOf ?: return

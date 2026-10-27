@@ -58,6 +58,8 @@ private const val AUTO_PLAY_SECS = 10
 fun BackupOffer(tuner: LiveTuner, engine: PlaybackEngine, channel: ChannelEntity?, modifier: Modifier = Modifier) {
     val catalog: BackupCatalog = koinInject()
     if (channel == null || !catalog.configured) return
+    // The backup's list is fetched while the channel still plays, so an offer never waits for it.
+    LaunchedEffect(Unit) { catalog.warmUp() }
     var dismissedFor by remember { mutableStateOf<Long?>(null) }
     var offerFor by remember { mutableStateOf<Long?>(null) }
     // Backup streams that failed while this player was open: tried last the next time round the cycle.
@@ -191,6 +193,45 @@ fun BackupOffer(tuner: LiveTuner, engine: PlaybackEngine, channel: ChannelEntity
             style = StageButtonStyle.SECONDARY,
             small = true,
         )
+    }
+}
+
+/** First wait before a channel the engines gave up on is opened again; each retry waits longer, up to [RETRY_MAX_MS]. */
+private const val RETRY_FIRST_MS = 5_000L
+private const val RETRY_MAX_MS = 30_000L
+/** With a backup provider: after the offer's own wait (5 s) and countdown (10 s) have had their turn. */
+private const val RETRY_FIRST_WITH_BACKUP_MS = 30_000L
+
+/**
+ * 8K PRO: a live channel is never given up on. When the engines have
+ * given up (ExoPlayer, then mpv, and an error on screen), the channel is opened again from the start
+ * after [RETRY_FIRST_MS], then a little later each time, until it plays.
+ */
+@Composable
+fun KeepTrying(tuner: LiveTuner, engine: PlaybackEngine, channel: ChannelEntity?) {
+    val catalog: BackupCatalog = koinInject()
+    if (channel == null || tuner.playingBackup) return
+    // With a backup the offer (and its automatic switch) comes first; this only catches what it leaves:
+    // no similar channel, the backup unreachable, or "Keep waiting".
+    val firstWait = if (catalog.configured) RETRY_FIRST_WITH_BACKUP_MS else RETRY_FIRST_MS
+    LaunchedEffect(channel.id, engine) {
+        var failedSince: Long? = null
+        var attempts = 0
+        while (true) {
+            delay(1_000)
+            val now = SystemClock.elapsedRealtime()
+            if (engine.error.value != null) {
+                val since = failedSince ?: now.also { failedSince = it }
+                if (now - since >= (firstWait + RETRY_FIRST_MS * attempts).coerceAtMost(maxOf(RETRY_MAX_MS, firstWait))) {
+                    attempts++
+                    failedSince = null
+                    tuner.retryLive()
+                }
+            } else {
+                failedSince = null
+                if (engine.isPlaying.value && !engine.buffering.value) attempts = 0
+            }
+        }
     }
 }
 

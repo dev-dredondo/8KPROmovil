@@ -822,6 +822,8 @@ fun PlayerScreen(
         // 8K PRO: a live channel that will not come back — offer the same channel on the backup provider.
         if (isLive && castDevice == null) {
             tv.own.owntv.mobile.ui.player.BackupOffer(tuner = tuner, engine = activeEngine, channel = channel, modifier = Modifier.align(Alignment.Center))
+            // With no backup, a channel the engines gave up on is retried until it plays.
+            tv.own.owntv.mobile.ui.player.KeepTrying(tuner = tuner, engine = activeEngine, channel = channel)
         }
         if (otherChannels) {
             val session = matchSession
