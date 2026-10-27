@@ -1,0 +1,8 @@
+{
+  "versionCode": 1010003,
+  "versionName": "1.0.3",
+  "apk": "https://raw.githubusercontent.com/dev-dredondo/8KPROmovil/apk/8KPROmovil-1.0.3.apk",
+  "sha256": "a6d2379c011d3c7079065d2bfff409d03ee361bfae15cce5040aa7618d21803a",
+  "size": 86906455,
+  "notes": "- Canales de reserva: si un canal se cae (o se corta mucho), la app ofrece el mismo canal en el servidor de reserva y puede cambiar sola\n- Reproductor MPV y DNS propias activadas por defecto\n- Al reinstalar la app se conserva el mismo código de dispositivo"
+}
