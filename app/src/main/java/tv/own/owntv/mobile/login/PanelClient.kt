@@ -62,6 +62,7 @@ class PanelClient(
         val body = JSONObject()
             .put("device_id", identity.deviceId)
             .put("token", identity.token)
+            .put("hardware_id", identity.hardwareId)
             .put("model", Build.MODEL)
             .put("manufacturer", Build.MANUFACTURER)
             .put("android", Build.VERSION.RELEASE)
@@ -88,6 +89,7 @@ class PanelClient(
             .url("${BrandConfig.panelUrl}/api/v1/config")
             .header("X-Device-Id", identity.deviceId)
             .header("X-Device-Token", identity.token)
+            .header("X-Hardware-Id", identity.hardwareId)
             .header("X-App-Version", BuildConfig.VERSION_NAME)
             .build()
         try {
@@ -134,6 +136,7 @@ class PanelClient(
             .url("${BrandConfig.panelUrl}/api/v1/stats")
             .header("X-Device-Id", identity.deviceId)
             .header("X-Device-Token", identity.token)
+            .header("X-Hardware-Id", identity.hardwareId)
             .header("X-App-Version", BuildConfig.VERSION_NAME)
             .post(payload.toString().toRequestBody(JSON))
             .build()
