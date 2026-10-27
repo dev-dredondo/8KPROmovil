@@ -819,6 +819,10 @@ fun PlayerScreen(
             },
             onOtherChannels = matchSession?.takeIf { it.options.size > 1 }?.let { { otherChannels = true } },
         )
+        // 8K PRO: a live channel that will not come back — offer the same channel on the backup provider.
+        if (isLive && castDevice == null) {
+            tv.own.owntv.mobile.ui.player.BackupOffer(tuner = tuner, engine = activeEngine, channel = channel, modifier = Modifier.align(Alignment.Center))
+        }
         if (otherChannels) {
             val session = matchSession
             if (session == null) otherChannels = false

@@ -634,6 +634,50 @@ class LiveTuner(
             ?.let { channel.copy(name = it) } ?: channel
     }
 
+    /**
+     * 8K PRO: play a channel of the backup provider in place of the one that stopped working.
+     *
+     * The backup channel is never stored: it is a copy of the dead channel's row with the backup's name
+     * and stream, under an id no real channel has (negative), so History, favourites and the channel list
+     * never see it. Channel +/− and the list keep working from the original channel's list.
+     */
+    /** The real channel a backup channel stands in for, so Channel +/− continues from its place in the list. */
+    private var backupOf: Long? = null
+
+    /** Whether what is playing is a backup provider's channel. */
+    val playingBackup: Boolean get() = (_channel.value?.id ?: 0L) <= BACKUP_ID_BASE
+
+    fun playBackup(name: String, url: String, logoUrl: String?) {
+        val original = _channel.value ?: return
+        val backup = original.copy(
+            id = BACKUP_ID_BASE - (url.hashCode().toLong() and 0x7fffffffL),
+            name = name,
+            streamUrl = url,
+            logoUrl = logoUrl ?: original.logoUrl,
+            catchup = false,
+            catchupDays = 0,
+            catchupSource = null,
+            catchupType = null,
+            httpHeaders = null,
+            drmConfig = null,
+            manifestType = null,
+            remoteId = null,
+            directSource = null,
+        )
+        backupOf = if (original.id < 0) backupOf else original.id
+        loadedId = backup.id
+        live.launch {
+            timeshift.clear()
+            _replaying.value = false
+            lastCatchup = null
+            _channel.value = backup
+            _previewing.value = false
+            previewChannel = null
+            // No source: the URL is played as it is, with none of the main account's overrides.
+            live.start(backup, null, resolved = url)
+        }
+    }
+
     fun switchTo(channel: ChannelEntity) {
         if (channel.id == loadedId) return
         loadedId = channel.id
@@ -651,7 +695,8 @@ class LiveTuner(
     fun step(delta: Int) {
         val list = _siblings.value
         if (list.size < 2) return
-        val index = list.indexOfFirst { it.id == loadedId }
+        val index = list.indexOfFirst { it.id == loadedId }.takeIf { it >= 0 }
+            ?: list.indexOfFirst { it.id == backupOf }
         if (index < 0) return
         val target = list[(index + delta).mod(list.size)]
         if (target.id == loadedId) return
@@ -1189,6 +1234,8 @@ class LiveTuner(
     }
 
     private companion object {
+        /** 8K PRO: ids of backup channels (see [playBackup]) — far below any real row id. */
+        const val BACKUP_ID_BASE = -1_000_000_000L
         const val SIBLING_LIMIT = 2_000
 
         /** How long Channel +/− waits for the user to stop pressing before it opens a stream — the

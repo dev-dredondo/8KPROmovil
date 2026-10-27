@@ -127,7 +127,7 @@ class SessionStore(context: Context) {
 }
 
 /** AES/GCM with a non-exportable Android Keystore key. Output: Base64(iv ‖ ciphertext+tag). */
-private object KeystoreCipher {
+internal object KeystoreCipher {
     private const val PROVIDER = "AndroidKeyStore"
     private const val ALIAS = "brand_session_key"
     private const val TRANSFORMATION = "AES/GCM/NoPadding"

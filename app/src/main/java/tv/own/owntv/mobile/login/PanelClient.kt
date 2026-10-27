@@ -40,7 +40,10 @@ sealed interface PanelStatus {
  * the one whose SHA-256 is [BrandConfig.panelPin] — and refuses every other, including a valid public
  * certificate for the same address. A man in the middle therefore cannot read the credentials.
  */
-class PanelClient {
+class PanelClient(
+    /** Where the backup provider the panel sends is kept; null in tests. */
+    private val backupStore: BackupStore? = null,
+) {
 
     private val client: OkHttpClient by lazy {
         val trust = PinnedTrustManager(BrandConfig.panelPin)
@@ -93,7 +96,17 @@ class PanelClient {
                 if (resp.code != 200) return@use PanelStatus.Unreachable
                 val o = JSONObject(resp.body.string())
                 val code = o.optString("code")
-                when (o.optString("status")) {
+                val status = o.optString("status")
+                // The backup provider travels with every answer; no backup (or not active) = none on the device.
+                runCatching {
+                    val b = o.optJSONObject("backup")?.takeIf { status == "active" }
+                    backupStore?.save(
+                        b?.let {
+                            BackupAccount(it.optString("server_url").trim().trimEnd('/'), it.optString("username"), it.optString("password"))
+                        }?.takeIf { it.serverUrl.isNotBlank() && it.username.isNotBlank() },
+                    )
+                }
+                when (status) {
                     "active" -> PanelStatus.Active(
                         code = code,
                         serverUrl = o.optString("server_url").trim().trimEnd('/'),

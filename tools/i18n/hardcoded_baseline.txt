@@ -4,6 +4,37 @@
 # Entries go as literals are translated or classified; the file may only ever shrink.
 # Format: <count>\t<relative path>\t<content with \t/\n escaped>
 
+1	app/src/main/java/tv/own/owntv/mobile/brand/BackupCatalog.kt	h264
+1	app/src/main/java/tv/own/owntv/mobile/brand/BackupCatalog.kt	h265
+1	app/src/main/java/tv/own/owntv/mobile/brand/BackupCatalog.kt	hd
+1	app/src/main/java/tv/own/owntv/mobile/brand/BackupCatalog.kt	hdr
+1	app/src/main/java/tv/own/owntv/mobile/brand/BackupCatalog.kt	hevc
+1	app/src/main/java/tv/own/owntv/mobile/brand/BackupCatalog.kt	hq
+1	app/src/main/java/tv/own/owntv/mobile/brand/BackupCatalog.kt	http
+1	app/src/main/java/tv/own/owntv/mobile/brand/BackupCatalog.kt	lq
+1	app/src/main/java/tv/own/owntv/mobile/brand/BackupCatalog.kt	m3u8
+1	app/src/main/java/tv/own/owntv/mobile/brand/BackupCatalog.kt	multi
+1	app/src/main/java/tv/own/owntv/mobile/brand/BackupCatalog.kt	multiaudio
+1	app/src/main/java/tv/own/owntv/mobile/brand/BackupCatalog.kt	name
+1	app/src/main/java/tv/own/owntv/mobile/brand/BackupCatalog.kt	one
+1	app/src/main/java/tv/own/owntv/mobile/brand/BackupCatalog.kt	plus
+1	app/src/main/java/tv/own/owntv/mobile/brand/BackupCatalog.kt	raw
+1	app/src/main/java/tv/own/owntv/mobile/brand/BackupCatalog.kt	sd
+1	app/src/main/java/tv/own/owntv/mobile/brand/BackupCatalog.kt	sdr
+1	app/src/main/java/tv/own/owntv/mobile/brand/BackupCatalog.kt	spa
+1	app/src/main/java/tv/own/owntv/mobile/brand/BackupCatalog.kt	spain
+1	app/src/main/java/tv/own/owntv/mobile/brand/BackupCatalog.kt	stream_icon
+1	app/src/main/java/tv/own/owntv/mobile/brand/BackupCatalog.kt	stream_id
+1	app/src/main/java/tv/own/owntv/mobile/brand/BackupCatalog.kt	tres
+4	app/src/main/java/tv/own/owntv/mobile/brand/BackupCatalog.kt	ts
+1	app/src/main/java/tv/own/owntv/mobile/brand/BackupCatalog.kt	two
+1	app/src/main/java/tv/own/owntv/mobile/brand/BackupCatalog.kt	uhd
+1	app/src/main/java/tv/own/owntv/mobile/brand/BackupCatalog.kt	uno
+1	app/src/main/java/tv/own/owntv/mobile/brand/BackupCatalog.kt	user_info
+1	app/src/main/java/tv/own/owntv/mobile/brand/BackupCatalog.kt	vip
+1	app/src/main/java/tv/own/owntv/mobile/brand/BackupCatalog.kt	x264
+1	app/src/main/java/tv/own/owntv/mobile/brand/BackupCatalog.kt	x265
+1	app/src/main/java/tv/own/owntv/mobile/brand/BackupCatalog.kt	y
 1	app/src/main/java/tv/own/owntv/mobile/brand/BrandDefaults.kt	#FFB95C
 1	app/src/main/java/tv/own/owntv/mobile/brand/BrandDefaults.kt	BrandDefaults
 1	app/src/main/java/tv/own/owntv/mobile/brand/BrandDefaults.kt	applied_version
@@ -12,6 +43,10 @@
 1	app/src/main/java/tv/own/owntv/mobile/brand/BrandDefaults.kt	es
 1	app/src/main/java/tv/own/owntv/mobile/brand/BrandSafe.kt	http://
 1	app/src/main/java/tv/own/owntv/mobile/brand/BrandSafe.kt	https://
+1	app/src/main/java/tv/own/owntv/mobile/login/BackupStore.kt	brand_backup
+1	app/src/main/java/tv/own/owntv/mobile/login/BackupStore.kt	pass
+1	app/src/main/java/tv/own/owntv/mobile/login/BackupStore.kt	url
+1	app/src/main/java/tv/own/owntv/mobile/login/BackupStore.kt	user
 2	app/src/main/java/tv/own/owntv/mobile/login/BrandAccount.kt	\0
 1	app/src/main/java/tv/own/owntv/mobile/login/BrandAccount.kt	&
 1	app/src/main/java/tv/own/owntv/mobile/login/BrandAccount.kt	?$it
@@ -32,10 +67,11 @@
 1	app/src/main/java/tv/own/owntv/mobile/login/PanelClient.kt	PanelClient
 1	app/src/main/java/tv/own/owntv/mobile/login/PanelClient.kt	SHA-256
 1	app/src/main/java/tv/own/owntv/mobile/login/PanelClient.kt	TLS
-1	app/src/main/java/tv/own/owntv/mobile/login/PanelClient.kt	active
+2	app/src/main/java/tv/own/owntv/mobile/login/PanelClient.kt	active
 1	app/src/main/java/tv/own/owntv/mobile/login/PanelClient.kt	android
 1	app/src/main/java/tv/own/owntv/mobile/login/PanelClient.kt	app_version
 1	app/src/main/java/tv/own/owntv/mobile/login/PanelClient.kt	application/json; charset=utf-8
+1	app/src/main/java/tv/own/owntv/mobile/login/PanelClient.kt	backup
 1	app/src/main/java/tv/own/owntv/mobile/login/PanelClient.kt	client certificates are not used
 2	app/src/main/java/tv/own/owntv/mobile/login/PanelClient.kt	code
 1	app/src/main/java/tv/own/owntv/mobile/login/PanelClient.kt	config failed: ${e.javaClass.simpleName}
@@ -46,13 +82,13 @@
 1	app/src/main/java/tv/own/owntv/mobile/login/PanelClient.kt	manufacturer
 1	app/src/main/java/tv/own/owntv/mobile/login/PanelClient.kt	model
 1	app/src/main/java/tv/own/owntv/mobile/login/PanelClient.kt	panel certificate does not match the pinned key
-1	app/src/main/java/tv/own/owntv/mobile/login/PanelClient.kt	password
+2	app/src/main/java/tv/own/owntv/mobile/login/PanelClient.kt	password
 1	app/src/main/java/tv/own/owntv/mobile/login/PanelClient.kt	register failed: ${e.javaClass.simpleName}
-1	app/src/main/java/tv/own/owntv/mobile/login/PanelClient.kt	server_url
+2	app/src/main/java/tv/own/owntv/mobile/login/PanelClient.kt	server_url
 1	app/src/main/java/tv/own/owntv/mobile/login/PanelClient.kt	status
 1	app/src/main/java/tv/own/owntv/mobile/login/PanelClient.kt	token
 1	app/src/main/java/tv/own/owntv/mobile/login/PanelClient.kt	unknown
-1	app/src/main/java/tv/own/owntv/mobile/login/PanelClient.kt	username
+2	app/src/main/java/tv/own/owntv/mobile/login/PanelClient.kt	username
 1	app/src/main/java/tv/own/owntv/mobile/login/PanelSync.kt	PanelSync
 1	app/src/main/java/tv/own/owntv/mobile/login/PanelSync.kt	account changed on the panel, updating
 1	app/src/main/java/tv/own/owntv/mobile/login/PanelSync.kt	device no longer active on the panel, signing out
@@ -78,6 +114,7 @@
 1	app/src/main/java/tv/own/owntv/mobile/login/XtreamAuthenticator.kt	login http ${e.code}
 1	app/src/main/java/tv/own/owntv/mobile/ui/components/Brand.kt	8K
 1	app/src/main/java/tv/own/owntv/mobile/ui/components/Brand.kt	PRO
+1	app/src/main/java/tv/own/owntv/mobile/ui/player/BackupOffer.kt	${alt.name} · $suffix
 1	app/src/main/java/tv/own/owntv/mobile/ui/screens/settings/SettingsPlaylistsPage.kt	account
 1	app/src/main/java/tv/own/owntv/mobile/ui/setup/BrandSetupFlow.kt	UNUSED_PARAMETER
 1	app/src/main/java/tv/own/owntv/mobile/ui/setup/SetupFlow.kt	unused
