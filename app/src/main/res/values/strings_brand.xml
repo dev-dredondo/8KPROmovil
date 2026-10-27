@@ -36,4 +36,5 @@
     <string name="backup_offer_wait">Keep waiting</string>
     <string name="backup_suffix">backup</string>
     <string name="backup_offer_search">Search the backup server</string>
+    <string name="backup_offer_auto">%1$s will play in %2$d s</string>
 </resources>

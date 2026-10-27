@@ -33,6 +33,7 @@ import tv.own.owntv.mobile.brand.BackupCatalog
 import tv.own.owntv.mobile.ui.screens.live.LiveTuner
 import tv.own.owntv.mobile.ui.stage.StageButton
 import tv.own.owntv.mobile.ui.stage.StageButtonStyle
+import tv.own.owntv.mobile.ui.stage.stageAccent
 import tv.own.owntv.mobile.ui.stage.stageText
 import tv.own.owntv.player.PlaybackEngine
 
@@ -40,6 +41,8 @@ import tv.own.owntv.player.PlaybackEngine
 private const val STALL_AFTER_MS = 20_000L
 /** An engine that has given up and says so: offer sooner. */
 private const val ERROR_AFTER_MS = 5_000L
+/** Seconds before the best backup match plays by itself when the user has not picked one. */
+private const val AUTO_PLAY_SECS = 10
 
 /**
  * 8K PRO: when a live channel stops and does not come back — still loading or reconnecting after
@@ -50,9 +53,12 @@ private const val ERROR_AFTER_MS = 5_000L
 @Composable
 fun BackupOffer(tuner: LiveTuner, engine: PlaybackEngine, channel: ChannelEntity?, modifier: Modifier = Modifier) {
     val catalog: BackupCatalog = koinInject()
-    if (channel == null || !catalog.configured || tuner.playingBackup) return
+    if (channel == null || !catalog.configured) return
     var dismissedFor by remember { mutableStateOf<Long?>(null) }
     var offerFor by remember { mutableStateOf<Long?>(null) }
+    // Backup streams that failed while this player was open: tried last the next time round the cycle.
+    var failedUrls by remember { mutableStateOf(emptySet<String>()) }
+    val onBackup = tuner.playingBackup
     LaunchedEffect(channel.id, engine) {
         offerFor = null
         var troubleSince: Long? = null
@@ -63,14 +69,22 @@ fun BackupOffer(tuner: LiveTuner, engine: PlaybackEngine, channel: ChannelEntity
             val now = SystemClock.elapsedRealtime()
             troubleSince = if (trouble) troubleSince ?: now else null
             val since = troubleSince
-            if (since != null && dismissedFor != channel.id && now - since >= (if (failed) ERROR_AFTER_MS else STALL_AFTER_MS)) {
-                offerFor = channel.id
-            } else if (since == null) {
-                offerFor = null // the channel came back by itself
+            val tooLong = since != null && now - since >= (if (failed) ERROR_AFTER_MS else STALL_AFTER_MS)
+            when {
+                // The backup channel failed too: back to the real one. If that fails again, the offer (and
+                // its countdown) starts over — the cycle the user asked for, until one of them plays.
+                onBackup && tooLong -> {
+                    failedUrls = failedUrls + channel.streamUrl
+                    tuner.returnFromBackup()
+                    return@LaunchedEffect
+                }
+                onBackup -> Unit
+                tooLong && dismissedFor != channel.id -> offerFor = channel.id
+                since == null -> offerFor = null // the channel came back by itself
             }
         }
     }
-    if (offerFor != channel.id) return
+    if (onBackup || offerFor != channel.id) return
 
     val suffix = stringResource(R.string.backup_suffix)
     // null = still looking; Unavailable = the backup server did not answer.
@@ -79,6 +93,19 @@ fun BackupOffer(tuner: LiveTuner, engine: PlaybackEngine, channel: ChannelEntity
     }
     // The user's own search, for when the names are too different to be matched.
     var query by remember(channel.id) { mutableStateOf("") }
+    // With no choice made, the best match plays by itself after AUTO_PLAY_SECS (paused while searching).
+    val ranked = (result as? Offer.Found)?.alternatives.orEmpty().sortedBy { it.url in failedUrls }
+    val autoPick = ranked.firstOrNull()
+    var remaining by remember(channel.id) { mutableStateOf(AUTO_PLAY_SECS) }
+    LaunchedEffect(channel.id, autoPick?.url) {
+        val pick = autoPick ?: return@LaunchedEffect
+        remaining = AUTO_PLAY_SECS
+        while (remaining > 0) {
+            delay(1_000)
+            if (query.isBlank()) remaining--
+        }
+        tuner.playBackup("${pick.name} · $suffix", pick.url, pick.logoUrl)
+    }
     val searched by produceState<List<BackupCatalog.Alternative>?>(initialValue = null, query) {
         value = if (query.isBlank()) null else {
             delay(250)
@@ -90,7 +117,7 @@ fun BackupOffer(tuner: LiveTuner, engine: PlaybackEngine, channel: ChannelEntity
             stringResource(R.string.backup_offer_title),
             style = stageText(17f, 800), color = Color.White, textAlign = TextAlign.Center,
         )
-        val found = (result as? Offer.Found)?.alternatives
+        val found = ranked.takeIf { result is Offer.Found }
         val sub = when {
             result == null -> stringResource(R.string.backup_offer_searching)
             result == Offer.Unavailable -> stringResource(R.string.backup_offer_unreachable)
@@ -98,6 +125,13 @@ fun BackupOffer(tuner: LiveTuner, engine: PlaybackEngine, channel: ChannelEntity
             else -> stringResource(R.string.backup_offer_text)
         }
         Text(sub, style = stageText(13f, 500), color = Color(0xFFCDD5D2), textAlign = TextAlign.Center, modifier = Modifier.padding(top = 4.dp))
+        if (autoPick != null && query.isBlank()) {
+            Text(
+                stringResource(R.string.backup_offer_auto, autoPick.name, remaining),
+                style = stageText(13f, 700), color = stageAccent.accent, textAlign = TextAlign.Center,
+                modifier = Modifier.padding(top = 6.dp),
+            )
+        }
         Spacer(Modifier.height(10.dp))
         if (result is Offer.Found) {
             tv.own.owntv.mobile.ui.stage.StageField(

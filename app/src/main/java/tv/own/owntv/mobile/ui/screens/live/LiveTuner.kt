@@ -644,6 +644,13 @@ class LiveTuner(
     /** The real channel a backup channel stands in for, so Channel +/− continues from its place in the list. */
     private var backupOf: Long? = null
 
+    /** Back from a backup channel to the real one it stood in for (the backup failed too). */
+    fun returnFromBackup() {
+        val id = backupOf ?: return
+        if (!playingBackup) return
+        tune(id)
+    }
+
     /** Whether what is playing is a backup provider's channel. */
     val playingBackup: Boolean get() = (_channel.value?.id ?: 0L) <= BACKUP_ID_BASE
 
