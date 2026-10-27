@@ -15,6 +15,7 @@ import tv.own.owntv.mobile.login.BackupAccount
 import tv.own.owntv.mobile.login.BackupStore
 import java.text.Normalizer
 import java.util.concurrent.TimeUnit
+import kotlin.math.ln
 
 /**
  * 8K PRO: the backup provider's live channels, used **only** to offer an alternative when a channel
@@ -28,7 +29,7 @@ class BackupCatalog(private val store: BackupStore) {
 
     private class Entry(val name: String, val streamId: Long, val logo: String?, val tokens: Set<String>, val key: String, val flat: String) {
         /** The name in lower case without accents, for the user's search. */
-        val plain: String = Normalizer.normalize(name.lowercase(), Normalizer.Form.NFD).replace(Regex("\\p{Mn}+"), "")
+        val plain: String = Normalizer.normalize(name, Normalizer.Form.NFKD).lowercase().replace(Regex("\\p{Mn}+"), "")
     }
 
     private val client by lazy {
@@ -41,6 +42,8 @@ class BackupCatalog(private val store: BackupStore) {
     private var cacheFor: BackupAccount? = null
     private var cacheAt = 0L
     private var entries: List<Entry> = emptyList()
+    /** How many backup channels use each word: "m", "plus" or "liga" are everywhere, "dazn" is not. */
+    private var wordCount: Map<String, Int> = emptyMap()
     private var extension = "ts"
 
     /** Whether the panel gave this device a backup provider. */
@@ -72,7 +75,7 @@ class BackupCatalog(private val store: BackupStore) {
     suspend fun search(text: String, limit: Int = 40): List<Alternative>? = withContext(Dispatchers.IO) {
         val account = store.current() ?: return@withContext null
         val list = load(account) ?: return@withContext null
-        val words = Normalizer.normalize(text.lowercase(), Normalizer.Form.NFD).replace(Regex("\\p{Mn}+"), "")
+        val words = Normalizer.normalize(text, Normalizer.Form.NFKD).lowercase().replace(Regex("\\p{Mn}+"), "")
             .split(Regex("[^a-z0-9+]+")).filter { it.isNotEmpty() }
         if (words.isEmpty()) return@withContext emptyList()
         list.asSequence()
@@ -109,6 +112,7 @@ class BackupCatalog(private val store: BackupStore) {
                 out += Entry(name, id, o.optString("stream_icon").takeIf { it.startsWith("http") }, n.tokens, n.key, n.flat)
             }
             entries = out
+            wordCount = out.flatMap { it.tokens }.groupingBy { it }.eachCount()
             cacheFor = account
             cacheAt = SystemClock.elapsedRealtime()
             out as List<Entry>
@@ -133,8 +137,9 @@ class BackupCatalog(private val store: BackupStore) {
      * left is what the channel is called.
      */
     private fun normalize(raw: String): Normalized {
-        var s = Normalizer.normalize(raw.lowercase(), Normalizer.Form.NFD).replace(Regex("\\p{Mn}+"), "")
+        var s = Normalizer.normalize(raw, Normalizer.Form.NFKD).lowercase().replace(Regex("\\p{Mn}+"), "")
         s = s.replace(Regex("^\\s*[\\[(|]?\\s*[a-z]{2,3}\\s*[\\])|:\\-]+"), " ") // "ES:", "|ES|", "[ES]", "ES -"
+        s = s.replace(Regex("^\\s*[^\\s:]{1,3}\\s*:"), " ") // a package tag before a colon: "M+: DAZN LaLiga"
         s = s.replace("+", " plus ").replace("&", " y ")
         val words = s.split(Regex("[^a-z0-9]+"))
             .filter { it.isNotEmpty() && it !in NOISE && !(it.endsWith("fps") && it.dropLast(3).all(Char::isDigit)) }
@@ -155,13 +160,17 @@ class BackupCatalog(private val store: BackupStore) {
         if (a.flat.isNotEmpty() && a.flat == e.flat) return 0.95
         val bNumbers = e.tokens.filter { t -> t.all(Char::isDigit) }.toSet()
         if (a.numbers.isNotEmpty() && bNumbers.isNotEmpty() && a.numbers.intersect(bNumbers).isEmpty()) return 0.0
-        val numberFactor = if (a.numbers == bNumbers) 1.0 else 0.75
+        val numberFactor = if (a.numbers == bNumbers) 1.0 else 0.8
         val aWords = a.tokens.filter { t -> !t.all(Char::isDigit) }
         val bWords = e.tokens.filter { t -> !t.all(Char::isDigit) }
         if (aWords.isEmpty() || bWords.isEmpty()) return 0.0
-        val matchedA = aWords.sumOf { w -> bWords.maxOf { o -> wordMatch(w, o) } }
-        val matchedB = bWords.sumOf { w -> aWords.maxOf { o -> wordMatch(w, o) } }
-        val dice = (matchedA + matchedB) / (aWords.size + bWords.size)
+        // Each word counts by how rare it is in the backup's list, so a channel is found by what makes it
+        // that channel ("DAZN") rather than by what half the list shares ("M+", "liga").
+        val total = entries.size.coerceAtLeast(1)
+        fun weight(w: String) = ln((total + 1.0) / ((wordCount[w] ?: 0) + 1.0)) + 1.0
+        val matchedA = aWords.sumOf { w -> weight(w) * bWords.maxOf { o -> wordMatch(w, o) } }
+        val matchedB = bWords.sumOf { w -> weight(w) * aWords.maxOf { o -> wordMatch(w, o) } }
+        val dice = (matchedA + matchedB) / (aWords.sumOf { weight(it) } + bWords.sumOf { weight(it) })
         val shorter = minOf(a.flat.length, e.flat.length)
         val contained = if (shorter >= 4 && (e.flat.contains(a.flat) || a.flat.contains(e.flat))) {
             0.55 + 0.4 * shorter / maxOf(a.flat.length, e.flat.length)
@@ -198,7 +207,7 @@ class BackupCatalog(private val store: BackupStore) {
     private companion object {
         const val TAG = "BackupCatalog"
         const val CACHE_MS = 6 * 60 * 60 * 1000L
-        const val MIN_SCORE = 0.45
+        const val MIN_SCORE = 0.55
         /** Words that say how a channel is delivered, not which channel it is. */
         val NOISE = setOf(
             "hd", "fhd", "uhd", "sd", "hq", "lq", "4k", "8k", "2k", "1080", "1080p", "1080i", "720", "720p", "576p", "480p",
