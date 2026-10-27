@@ -102,6 +102,8 @@ class BackupCatalog(private val store: BackupStore) {
                 val name = o.optString("name").trim()
                 val id = o.optLong("stream_id", -1)
                 if (name.isEmpty() || id < 0) continue
+                // "##### DEPORTES #####": a heading in the provider's list, not a channel — it plays nothing.
+                if ('#' in name) continue
                 val n = normalize(name)
                 if (n.tokens.isEmpty()) continue
                 out += Entry(name, id, o.optString("stream_icon").takeIf { it.startsWith("http") }, n.tokens, n.key, n.flat)
