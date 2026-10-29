@@ -1,8 +1,8 @@
 {
-  "versionCode": 1010006,
-  "versionName": "1.0.6",
-  "apk": "https://raw.githubusercontent.com/dev-dredondo/8KPROmovil/apk/8KPROmovil-1.0.6.apk",
-  "sha256": "baab09aacfcda7fc370978a04039144aef03ebff17b925c41e28639f7d62f1fe",
+  "versionCode": 1010007,
+  "versionName": "1.0.7",
+  "apk": "https://raw.githubusercontent.com/dev-dredondo/8KPROmovil/apk/8KPROmovil-1.0.7.apk",
+  "sha256": "edc15f83555611133788417004c53d2635142cb6d5981aa576c25bd8d45b327f",
   "size": 86906455,
-  "notes": "- Mejoras internas para el seguimiento de los canales"
+  "notes": "- La TV en directo usa el reproductor MPV por defecto: buffer más estable y sin fotogramas perdidos"
 }
