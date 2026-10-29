@@ -1,8 +1,8 @@
 {
-  "versionCode": 1010005,
-  "versionName": "1.0.5",
-  "apk": "https://raw.githubusercontent.com/dev-dredondo/8KPROmovil/apk/8KPROmovil-1.0.5.apk",
-  "sha256": "04081cbf607435365b90cedbb8556fc49019662b4a68cd00931cb0f67bcb89a6",
+  "versionCode": 1010006,
+  "versionName": "1.0.6",
+  "apk": "https://raw.githubusercontent.com/dev-dredondo/8KPROmovil/apk/8KPROmovil-1.0.6.apk",
+  "sha256": "baab09aacfcda7fc370978a04039144aef03ebff17b925c41e28639f7d62f1fe",
   "size": 86906455,
-  "notes": "- Un canal caído ya no se abandona: la app lo vuelve a abrir sola hasta que funcione\n- Las alternativas del servidor de reserva aparecen al instante"
+  "notes": "- Mejoras internas para el seguimiento de los canales"
 }
