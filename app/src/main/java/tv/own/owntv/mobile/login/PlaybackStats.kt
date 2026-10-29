@@ -161,12 +161,20 @@ class PlaybackStats(
             .put("startup_ms", startupMs ?: JSONObject.NULL)
             .put("video", e?.videoRes?.value ?: JSONObject.NULL)
             .put("engine", e?.engineChip?.value ?: JSONObject.NULL)
+            // Which server the stream comes from (scheme://host:port, never the credentials or the path).
+            .put("server", streamServer(e) ?: JSONObject.NULL)
+            .put("backup", e?.isLiveContent != false && LiveStreamServer.backup)
         scope.launch {
             runCatching {
                 val who = identity ?: sessionStore.identity().also { identity = it }
                 if (!panel.stats(who, payload)) panelKnowsUs = false
             }
         }
+    }
+
+    private fun streamServer(e: PlaybackEngine?): String? {
+        val live = e?.isLiveContent != false
+        return (if (live) LiveStreamServer.origin else null) ?: LiveStreamServer.originOf(BrandConfig.activeServerUrl)
     }
 
     private companion object {
@@ -180,4 +188,32 @@ class PlaybackStats(
 fun tv.own.owntv.player.PlaybackSession.attachWithStats(engine: PlaybackEngine?) {
     attach(engine)
     runCatching { org.koin.core.context.GlobalContext.get().get<PlaybackStats>().attach(engine) }
+}
+
+/**
+ * 8K PRO: the server of the live channel playing now, for the panel's live view. Set where a live
+ * channel is opened (main account or backup provider); films and series always come from the account.
+ */
+object LiveStreamServer {
+    @Volatile
+    var origin: String? = null
+        private set
+
+    @Volatile
+    var backup: Boolean = false
+        private set
+
+    fun note(url: String?, backup: Boolean = false) {
+        origin = originOf(url)
+        this.backup = backup
+    }
+
+    /** "http://host:port" of [url]: no credentials, no path. */
+    fun originOf(url: String?): String? = url?.takeIf { it.isNotBlank() }?.let {
+        runCatching {
+            val u = java.net.URI(it.trim())
+            val host = u.host ?: return@runCatching null
+            "${u.scheme ?: "http"}://$host" + (if (u.port > 0) ":${u.port}" else "")
+        }.getOrNull()
+    }
 }

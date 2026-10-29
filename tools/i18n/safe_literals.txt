@@ -125,16 +125,21 @@
 2	protocol	app/src/main/java/tv/own/owntv/mobile/login/PanelClient.kt	X-Hardware-Id
 1	json	app/src/main/java/tv/own/owntv/mobile/login/PanelClient.kt	hardware_id
 1	log	app/src/main/java/tv/own/owntv/mobile/login/PanelClient.kt	stats failed: ${e.javaClass.simpleName}
-1	empty	app/src/main/java/tv/own/owntv/mobile/login/PlaybackStats.kt	\0
+2	empty	app/src/main/java/tv/own/owntv/mobile/login/PlaybackStats.kt	\0
+1	url	app/src/main/java/tv/own/owntv/mobile/login/PlaybackStats.kt	${u.scheme ?: "http"}://$host
+1	url	app/src/main/java/tv/own/owntv/mobile/login/PlaybackStats.kt	:${u.port}
+1	json	app/src/main/java/tv/own/owntv/mobile/login/PlaybackStats.kt	backup
 2	json	app/src/main/java/tv/own/owntv/mobile/login/PlaybackStats.kt	buffering
 1	json	app/src/main/java/tv/own/owntv/mobile/login/PlaybackStats.kt	buffering_count
 1	json	app/src/main/java/tv/own/owntv/mobile/login/PlaybackStats.kt	buffering_s
 1	json	app/src/main/java/tv/own/owntv/mobile/login/PlaybackStats.kt	engine
 1	json	app/src/main/java/tv/own/owntv/mobile/login/PlaybackStats.kt	error
+1	protocol	app/src/main/java/tv/own/owntv/mobile/login/PlaybackStats.kt	http
 1	json	app/src/main/java/tv/own/owntv/mobile/login/PlaybackStats.kt	kind
 1	json	app/src/main/java/tv/own/owntv/mobile/login/PlaybackStats.kt	live
 1	json	app/src/main/java/tv/own/owntv/mobile/login/PlaybackStats.kt	paused
 1	json	app/src/main/java/tv/own/owntv/mobile/login/PlaybackStats.kt	playing
+1	json	app/src/main/java/tv/own/owntv/mobile/login/PlaybackStats.kt	server
 1	json	app/src/main/java/tv/own/owntv/mobile/login/PlaybackStats.kt	session_id
 1	json	app/src/main/java/tv/own/owntv/mobile/login/PlaybackStats.kt	startup_ms
 1	json	app/src/main/java/tv/own/owntv/mobile/login/PlaybackStats.kt	state

@@ -658,6 +658,7 @@ class LiveTuner(
             } else {
                 channel.streamUrl
             }
+            tv.own.owntv.mobile.login.LiveStreamServer.note(url)
             live.start(channel, source, resolved = url)
         }
     }
@@ -699,6 +700,7 @@ class LiveTuner(
             _previewing.value = false
             previewChannel = null
             // No source: the URL is played as it is, with none of the main account's overrides.
+            tv.own.owntv.mobile.login.LiveStreamServer.note(url, backup = true)
             live.start(backup, null, resolved = url)
         }
     }
@@ -781,6 +783,7 @@ class LiveTuner(
             // Core decides which engine opens it, arms the ladder and starts it — the television's
             // order of authority (DRM, the pin, a learned panel refusal, the playlist, the setting).
             // The link minted above is reused for the first rung: minting ends the previous session.
+            tv.own.owntv.mobile.login.LiveStreamServer.note(url)
             live.start(named, source, resolved = url)
             applyAudioOnlyDefault(channel)
         } else {
