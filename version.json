@@ -1,8 +1,8 @@
 {
-  "versionCode": 1010007,
-  "versionName": "1.0.7",
-  "apk": "https://raw.githubusercontent.com/dev-dredondo/8KPROmovil/apk/8KPROmovil-1.0.7.apk",
-  "sha256": "edc15f83555611133788417004c53d2635142cb6d5981aa576c25bd8d45b327f",
+  "versionCode": 1010008,
+  "versionName": "1.0.8",
+  "apk": "https://raw.githubusercontent.com/dev-dredondo/8KPROmovil/apk/8KPROmovil-1.0.8.apk",
+  "sha256": "4e154eb51f4e74d7792b37206edbc63a05ac8bd3a104c6369554f3b0999f07f0",
   "size": 86906455,
-  "notes": "- La TV en directo usa el reproductor MPV por defecto: buffer más estable y sin fotogramas perdidos"
+  "notes": "- Listas M3U: el panel puede añadir listas M3U (con su guía) como proveedores, junto a la cuenta o solas"
 }
