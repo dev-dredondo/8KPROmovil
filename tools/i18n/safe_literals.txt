@@ -118,13 +118,33 @@
 2	mime	app/src/main/java/tv/own/owntv/mobile/cast/CastRequest.kt	video/mp4
 1	mime	app/src/main/java/tv/own/owntv/mobile/cast/CastRequest.kt	video/webm
 1	mime	app/src/main/java/tv/own/owntv/mobile/cast/CastRequest.kt	video/x-matroska
+1	technical	app/src/main/java/tv/own/owntv/mobile/login/BrandAccount.kt	8K PRO
+1	technical	app/src/main/java/tv/own/owntv/mobile/login/BrandAccount.kt	M3U playlist not applied
+3	technical	app/src/main/java/tv/own/owntv/mobile/login/BrandAccount.kt	brand_account_changed
+1	log	app/src/main/java/tv/own/owntv/mobile/login/BrandAccount.kt	playlist not switched to Xtream
+1	technical	app/src/main/java/tv/own/owntv/mobile/login/BrandPlaylists.kt	BrandPlaylists
+1	technical	app/src/main/java/tv/own/owntv/mobile/login/BrandPlaylists.kt	M3U
+1	technical	app/src/main/java/tv/own/owntv/mobile/login/BrandPlaylists.kt	brand_playlist_added
+1	technical	app/src/main/java/tv/own/owntv/mobile/login/BrandPlaylists.kt	brand_playlist_changed
+1	preference-key	app/src/main/java/tv/own/owntv/mobile/login/BrandPlaylists.kt	brand_playlists
+1	log	app/src/main/java/tv/own/owntv/mobile/login/BrandPlaylists.kt	panel playlist added
+1	log	app/src/main/java/tv/own/owntv/mobile/login/BrandPlaylists.kt	panel playlists not applied
+1	preference-key	app/src/main/java/tv/own/owntv/mobile/login/BrandPlaylists.kt	panel_to_source
+1	technical	app/src/main/java/tv/own/owntv/mobile/login/BrandPlaylists.kt	{}
+2	empty	app/src/main/java/tv/own/owntv/mobile/login/PanelClient.kt	\0
 1	url	app/src/main/java/tv/own/owntv/mobile/login/PanelClient.kt	${BrandConfig.panelUrl}/api/v1/stats
 2	protocol	app/src/main/java/tv/own/owntv/mobile/login/PanelClient.kt	X-App-Version
 2	protocol	app/src/main/java/tv/own/owntv/mobile/login/PanelClient.kt	X-Device-Id
 2	protocol	app/src/main/java/tv/own/owntv/mobile/login/PanelClient.kt	X-Device-Token
 2	protocol	app/src/main/java/tv/own/owntv/mobile/login/PanelClient.kt	X-Hardware-Id
+1	json	app/src/main/java/tv/own/owntv/mobile/login/PanelClient.kt	epg_url
 1	json	app/src/main/java/tv/own/owntv/mobile/login/PanelClient.kt	hardware_id
+1	json	app/src/main/java/tv/own/owntv/mobile/login/PanelClient.kt	http
+1	json	app/src/main/java/tv/own/owntv/mobile/login/PanelClient.kt	id
+1	json	app/src/main/java/tv/own/owntv/mobile/login/PanelClient.kt	name
+1	json	app/src/main/java/tv/own/owntv/mobile/login/PanelClient.kt	playlists
 1	log	app/src/main/java/tv/own/owntv/mobile/login/PanelClient.kt	stats failed: ${e.javaClass.simpleName}
+1	json	app/src/main/java/tv/own/owntv/mobile/login/PanelClient.kt	url
 2	empty	app/src/main/java/tv/own/owntv/mobile/login/PlaybackStats.kt	\0
 1	url	app/src/main/java/tv/own/owntv/mobile/login/PlaybackStats.kt	${u.scheme ?: "http"}://$host
 1	url	app/src/main/java/tv/own/owntv/mobile/login/PlaybackStats.kt	:${u.port}
@@ -148,11 +168,15 @@
 1	json	app/src/main/java/tv/own/owntv/mobile/login/PlaybackStats.kt	video
 1	json	app/src/main/java/tv/own/owntv/mobile/login/PlaybackStats.kt	vod
 1	json	app/src/main/java/tv/own/owntv/mobile/login/PlaybackStats.kt	watch_s
-4	empty	app/src/main/java/tv/own/owntv/mobile/login/SessionStore.kt	\0
+6	empty	app/src/main/java/tv/own/owntv/mobile/login/SessionStore.kt	\0
 1	technical	app/src/main/java/tv/own/owntv/mobile/login/SessionStore.kt	%02x
 1	technical	app/src/main/java/tv/own/owntv/mobile/login/SessionStore.kt	8kpro-hw:$raw
 1	technical	app/src/main/java/tv/own/owntv/mobile/login/SessionStore.kt	9774d56d682e549c
 1	technical	app/src/main/java/tv/own/owntv/mobile/login/SessionStore.kt	SHA-256
+1	preference-key	app/src/main/java/tv/own/owntv/mobile/login/SessionStore.kt	account_type
+1	preference-key	app/src/main/java/tv/own/owntv/mobile/login/SessionStore.kt	epg_url
+1	preference-key	app/src/main/java/tv/own/owntv/mobile/login/SessionStore.kt	m3u
+1	preference-key	app/src/main/java/tv/own/owntv/mobile/login/SessionStore.kt	xtream
 1	preference-key	app/src/main/java/tv/own/owntv/mobile/playback/PlaybackService.kt	owntv_playback
 1	technical	app/src/main/java/tv/own/owntv/mobile/playback/PlaybackService.kt	tv.own.owntv.mobile.AUDIO_ONLY
 1	technical	app/src/main/java/tv/own/owntv/mobile/playback/PlaybackService.kt	tv.own.owntv.mobile.SKIP_BACK

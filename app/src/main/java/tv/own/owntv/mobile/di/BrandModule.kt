@@ -18,8 +18,9 @@ val brandModule = module {
     single { tv.own.owntv.mobile.login.BackupStore(androidContext()) }
     single { PanelClient(get()) }
     single { tv.own.owntv.mobile.brand.BackupCatalog(get()) }
-    single { BrandAccount(get(), get(), get()) }
-    single { PanelSync(get(), get(), get()) }
+    single { BrandAccount(get(), get(), get(), get()) }
+    single { tv.own.owntv.mobile.login.BrandPlaylists(androidContext(), get(), get(), get(), get(), get()) }
+    single { PanelSync(get(), get(), get(), get()) }
     single { tv.own.owntv.mobile.login.PlaybackStats(get(), get()) }
     single { tv.own.owntv.mobile.brand.BrandUpdater(androidContext()) }
     viewModelOf(::LoginViewModel)

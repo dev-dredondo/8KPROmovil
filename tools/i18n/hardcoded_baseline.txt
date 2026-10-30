@@ -52,7 +52,6 @@
 1	app/src/main/java/tv/own/owntv/mobile/login/BrandAccount.kt	?$it
 1	app/src/main/java/tv/own/owntv/mobile/login/BrandAccount.kt	BrandAccount
 2	app/src/main/java/tv/own/owntv/mobile/login/BrandAccount.kt	UTF-8
-1	app/src/main/java/tv/own/owntv/mobile/login/BrandAccount.kt	brand_account_changed
 1	app/src/main/java/tv/own/owntv/mobile/login/BrandAccount.kt	guide feeds not updated
 1	app/src/main/java/tv/own/owntv/mobile/login/BrandAccount.kt	password
 1	app/src/main/java/tv/own/owntv/mobile/login/BrandAccount.kt	password=

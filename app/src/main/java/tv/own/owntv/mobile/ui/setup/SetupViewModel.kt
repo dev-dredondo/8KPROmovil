@@ -63,11 +63,25 @@ class SetupViewModel(
                 attachToProfile()
             }
             val existing = runCatching { sourceDao.getAllOnce() }.getOrDefault(emptyList())
-                .filter { it.type == tv.own.owntv.core.model.SourceType.XTREAM && tv.own.owntv.mobile.brand.BrandConfig.isOnBrandServer(it.url) }
+                .filter {
+                    if (session.m3u) {
+                        it.type == tv.own.owntv.core.model.SourceType.M3U && it.url.trim() == session.m3uUrl.trim()
+                    } else {
+                        it.type == tv.own.owntv.core.model.SourceType.XTREAM && tv.own.owntv.mobile.brand.BrandConfig.isOnBrandServer(it.url)
+                    }
+                }
                 .map { it.id }
                 .toSet()
             if (existing.isNotEmpty()) {
                 importer.linkExisting(existing)
+            } else if (session.m3u) {
+                // 8K PRO: an M3U playlist assigned on the panel (with its guide, when it has one).
+                importer.m3u(
+                    name = playlistName,
+                    url = session.m3uUrl,
+                    epgUrl = session.epgUrl,
+                    autoRefresh = tv.own.owntv.mobile.brand.BrandDefaults.PLAYLIST_REFRESH,
+                )
             } else {
                 importer.xtream(
                     name = playlistName,
@@ -187,6 +201,8 @@ class SetupViewModel(
         appScope.launch {
             val profileId = importer.finish()
             onMain { onDone(profileId) }
+            // 8K PRO: the panel's extra M3U playlists need a profile to go in; now there is one.
+            runCatching { org.koin.core.context.GlobalContext.get().get<tv.own.owntv.mobile.login.PanelSync>().refresh(force = true) }
         }
     }
 
