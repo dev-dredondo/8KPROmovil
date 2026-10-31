@@ -168,6 +168,8 @@ class OwnTVMobileApp : Application(), androidx.work.Configuration.Provider {
         }
         // 8K PRO: tunneled playback on, accent #FFB95C, TMDB in Spanish, live preview off (once per
         // install) and the brand's TMDB key whenever none is stored.
+        // 8K PRO: orders from the activation panel ("close the app").
+        tv.own.owntv.mobile.login.BrandRemote.init(this)
         tv.own.owntv.mobile.brand.BrandDefaults.apply(
             context = this,
             scope = appScope,

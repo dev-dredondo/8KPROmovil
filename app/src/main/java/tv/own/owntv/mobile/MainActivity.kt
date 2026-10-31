@@ -273,6 +273,8 @@ open class MainActivity : FragmentActivity() {
      * back resumes it where it was rather than reconnecting from the start.
      */
     override fun onStop() {
+        remoteWatch?.cancel()
+        remoteWatch = null
         super.onStop()
         if (isChangingConfigurations) return
         // Stopped after the floating window was up, without ever resuming in between: the window was
@@ -322,6 +324,9 @@ open class MainActivity : FragmentActivity() {
         wasInPipWindow = false
     }
 
+    /** 8K PRO: the panel's "close the app" check, running while the app is on screen. */
+    private var remoteWatch: kotlinx.coroutines.Job? = null
+
     override fun onStart() {
         super.onStart()
         // Back in the foreground: interval refreshes only; core throttles a quick in-and-out.
@@ -329,6 +334,14 @@ open class MainActivity : FragmentActivity() {
         // 8K PRO: every time the app comes back, pick up DNS/credential changes made on the panel.
         lifecycleScope.launch {
             runCatching { org.koin.core.context.GlobalContext.get().get<tv.own.owntv.mobile.login.PanelSync>().refresh() }
+        }
+        // 8K PRO: while on screen, the panel can close the app ("Cerrar app").
+        remoteWatch?.cancel()
+        remoteWatch = lifecycleScope.launch {
+            runCatching {
+                val koin = org.koin.core.context.GlobalContext.get()
+                tv.own.owntv.mobile.login.BrandRemote.watch(koin.get(), koin.get())
+            }
         }
         // 8K PRO: a new version of the app? (at most every 30 min; downloads and installs by itself)
         runCatching { org.koin.core.context.GlobalContext.get().get<tv.own.owntv.mobile.brand.BrandUpdater>().checkAndUpdate() }

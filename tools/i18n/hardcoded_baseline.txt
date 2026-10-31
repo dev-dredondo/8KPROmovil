@@ -58,6 +58,7 @@
 1	app/src/main/java/tv/own/owntv/mobile/login/BrandAccount.kt	playlists not updated
 1	app/src/main/java/tv/own/owntv/mobile/login/BrandAccount.kt	username
 1	app/src/main/java/tv/own/owntv/mobile/login/BrandAccount.kt	username=
+1	app/src/main/java/tv/own/owntv/mobile/login/BrandRemote.kt	closing the app at the panel's request
 1	app/src/main/java/tv/own/owntv/mobile/login/LoginScreen.kt	\0
 1	app/src/main/java/tv/own/owntv/mobile/login/LoginScreen.kt	· · ·
 3	app/src/main/java/tv/own/owntv/mobile/login/LoginViewModel.kt	\0
