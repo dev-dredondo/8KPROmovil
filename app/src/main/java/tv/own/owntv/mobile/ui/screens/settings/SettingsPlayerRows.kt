@@ -53,7 +53,7 @@ internal fun playerSections(vm: SettingsViewModel): List<SettingSection> {
     val sources by vm.sources.collectAsStateWithLifecycle()
     val livePins by vm.livePinCount.collectAsStateWithLifecycle()
     val vodPins by vm.vodEnginePinCount.collectAsStateWithLifecycle()
-    val liveEngine = s.liveEnginePreference.pref(EnginePreference.EXO_FIRST)
+    val liveEngine = s.liveEnginePreference.pref(EnginePreference.MPV_FIRST)
     val vodEngine = s.vodEnginePreference.pref(EnginePreference.MPV_FIRST)
     val buffer = s.vodBufferSecs.pref(0)
     val timeout = s.vodNetworkTimeoutSecs.pref(0)
@@ -68,7 +68,7 @@ internal fun playerSections(vm: SettingsViewModel): List<SettingSection> {
                 choiceItem(
                     "vp_live_engine", MobileIcons.LiveTv, g, stringResource(R.string.settings_live_tv_player),
                     stringResource(R.string.settings_line_live_engine), stringResource(R.string.settings_help_live_engine),
-                    engines, liveEngine, EnginePreference.EXO_FIRST, { p -> vm.edit { setLiveEnginePreference(p) } },
+                    engines, liveEngine, EnginePreference.MPV_FIRST, { p -> vm.edit { setLiveEnginePreference(p) } }, // 8K PRO: mpv first by default
                 ),
                 if (sources.isNotEmpty()) pageItem(
                     "vp_live_engine_sources", MobileIcons.Layers, stringResource(R.string.settings_live_engine_per_playlist),
